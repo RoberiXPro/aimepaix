@@ -12,18 +12,18 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: linear-gradient(135deg, #f0f0f0, #c0c0c0); /* Couleur de fond différente */
+        background: #2c2c2c; /* Fond gris foncé */
         font-family: 'Arial', sans-serif;
-        color: #333; /* Couleur de texte plus sombre */
+        color: #e0e0e0; /* Couleur de texte claire */
         margin: 0;
     }
     #login-container, #chat-container {
         width: 70%;
         max-width: 800px;
-        background: rgba(255, 255, 255, 0.9); /* Fond clair pour le conteneur */
+        background: rgba(40, 40, 40, 0.95); /* Fond légèrement transparent et sombre */
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Ombre plus légère */
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* Ombre plus marquée */
         display: none;
     }
     #login-container {
@@ -32,14 +32,14 @@
     }
     #reply-container {
         display: none;
-        background-color: #f8f8f8; /* Couleur de fond plus claire */
+        background-color: #444; /* Couleur de fond pour les réponses */
         padding: 5px;
         border-radius: 5px;
         margin-bottom: 10px;
-        color: #333; /* Texte sombre */
+        color: #e0e0e0; /* Texte clair */
     }
     .reply-btn {
-        background-color: #e67e22; /* Couleur orange vif */
+        background-color: #5c85d6; /* Couleur bleue modérée */
         color: white;
         border: none;
         border-radius: 5px;
@@ -49,7 +49,7 @@
         padding: 5px;
     }
     .reply-btn:hover {
-        background-color: #d35400; /* Couleur d'hover différente */
+        background-color: #4a6bbf; /* Couleur d'hover pour le bouton de réponse */
     }
     input, button {
         padding: 10px;
@@ -57,22 +57,22 @@
         border: none;
         outline: none;
         font-size: 1rem;
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Ombre plus légère */
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Ombre modérée */
     }
     input {
         width: 100%;
         margin-bottom: 10px;
-        background-color: #f0f0f0; /* Fond d'input plus clair */
-        color: #333; /* Texte sombre */
+        background-color: #444; /* Fond d'input sombre */
+        color: #e0e0e0; /* Texte clair */
     }
     button {
-        background-color: #2980b9; /* Couleur bleue différente */
+        background-color: #555; /* Couleur de bouton sombre */
         color: white;
         cursor: pointer;
         transition: background-color 0.3s;
     }
     button:hover {
-        background-color: #2471a3; /* Couleur d'hover différente */
+        background-color: #4b4b4b; /* Couleur d'hover pour le bouton */
     }
 
     #emoji-picker {
@@ -80,10 +80,10 @@
         flex-wrap: wrap;
         gap: 8px;
         max-width: 200px;
-        background-color: #fff; /* Couleur d'arrière-plan blanche */
+        background-color: #444; /* Couleur d'arrière-plan sombre pour l'emoji picker */
         border-radius: 10px;
         padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         position: absolute;
         bottom: 60px;
         left: 20px;
@@ -93,10 +93,10 @@
         position: absolute;
         bottom: 25px;
         right: 5px;
-        background-color: #fff; /* Couleur d'arrière-plan blanche */
+        background-color: #444; /* Couleur d'arrière-plan sombre */
         border-radius: 10px;
         padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         z-index: 10;
         max-width: 200px;
         flex-wrap: wrap;
@@ -110,7 +110,7 @@
         cursor: pointer;
         background: transparent;
         border: none;
-        color: #e67e22; /* Couleur d'emoji différente */
+        color: #ffd700; /* Couleur des emojis dorés */
         transition: transform 0.2s ease;
     }
     .emoji-btn:hover {
@@ -129,10 +129,10 @@
         max-height: 300px;
         overflow-y: auto;
         padding: 10px;
-        background-color: #fff; /* Couleur d'arrière-plan blanche */
+        background-color: #333; /* Couleur d'arrière-plan sombre pour les messages */
         border-radius: 5px;
         margin-bottom: 10px;
-        border: 1px solid #ccc; /* Bordure pour séparer les messages */
+        border: 1px solid #444; /* Bordure sombre pour séparer les messages */
     }
     .message {
         padding: 10px;
@@ -140,19 +140,19 @@
         border-radius: 5px;
         word-wrap: break-word;
         max-width: 70%;
-        color: #333; /* Texte sombre */
+        color: #e0e0e0; /* Texte clair pour les messages */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         position: relative;
     }
     .message.user1 {
-        background: linear-gradient(to right, #f39c12, #f1c40f); /* Gradient pour l'utilisateur 1 */
+        background: #5c85d6; /* Fond sombre pour l'utilisateur 1 */
         align-self: flex-end;
         border-radius: 10px 10px 0 10px;
     }
     .message.user2 {
-        background: linear-gradient(to right, #2ecc71, #27ae60); /* Gradient pour l'utilisateur 2 */
+        background: #444; /* Fond sombre pour l'utilisateur 2 */
         align-self: flex-start;
         border-radius: 10px 10px 10px 0;
     }
@@ -160,12 +160,12 @@
         margin-bottom: 5px;
     }
     .citation {
-        background-color: #f2f2f2; /* Fond pour la citation */
+        background-color: #555; /* Fond pour la citation */
         padding: 5px;
         margin-bottom: 5px;
         border-radius: 5px;
         font-style: italic;
-        color: #555; /* Couleur de texte plus sombre */
+        color: #ccc; /* Couleur de texte pour les citations */
     }
     .reaction-container {
         margin-top: 5px;
@@ -174,7 +174,7 @@
     }
     .reaction-label {
         font-size: 0.8rem;
-        color: #777; /* Couleur plus claire pour le label */
+        color: #ccc; /* Couleur plus claire pour le label */
         margin-right: 5px;
         font-style: italic;
     }
@@ -189,7 +189,7 @@
         font-size: 0.9rem;
         font-weight: bold;
         color: #fff;
-        background: linear-gradient(135deg, #e67e22, #f39c12); /* Gradient pour le nom d'utilisateur 1 */
+        background: #5c85d6; /* Couleur de fond pour le nom d'utilisateur 1 */
         padding: 5px 8px;
         border-radius: 6px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -199,7 +199,7 @@
         font-size: 0.9rem;
         font-weight: bold;
         color: #fff;
-        background: linear-gradient(135deg, #27ae60, #2ecc71); /* Gradient pour le nom d'utilisateur 2 */
+        background: #444; /* Couleur de fond pour le nom d'utilisateur 2 */
         padding: 5px 8px;
         border-radius: 6px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -218,36 +218,26 @@
     }
     h1 {
         font-size: 3em;
-        color: #2980b9; /* Couleur de titre différente */
+        color: #ffd700; /* Couleur de titre dorée */
         margin-bottom: 20px;
         padding: 20px 40px;
         border-radius: 15px;
         text-align: center;
-        background: linear-gradient(135deg, #2ecc71, #27ae60); /* Gradient de fond pour le titre */
-        background-size: 200% 200%;
-        animation: gradientBackground 4s ease infinite;
-        text-shadow: 0 0 10px #16a085, 0 0 20px #1abc9c;
+        background: #333; /* Couleur de fond sombre pour le titre */
+        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffcc00;
         border: 2px solid transparent;
-        border-image: linear-gradient(45deg, #2980b9, #3498db);
-        border-image-slice: 1;
-        box-shadow: 0 0 15px rgba(41, 128, 185, 0.6);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
         transition: transform 0.3s ease;
-    }
-    @keyframes gradientBackground {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
     }
     h1:hover {
         transform: scale(1.05);
-        text-shadow: 0 0 15px #16a085, 0 0 25px #1abc9c;
     }
     .action-buttons {
         display: flex;
         gap: 5px;
     }
     .action-buttons button {
-        background-color: #2980b9; /* Couleur d'action principale */
+        background-color: #555; /* Couleur d'action sombre */
         color: #fff;
         border: none;
         border-radius: 5px;
@@ -255,26 +245,26 @@
         padding: 5px;
     }
     .action-buttons button:hover {
-        background-color: #2471a3; /* Couleur d'hover pour les actions */
+        background-color: #4b4b4b; /* Couleur d'hover pour les actions */
     }
     .action-buttons .btn-reply {
-        background-color: #e67e22; /* Couleur différente pour répondre */
+        background-color: #5c85d6; /* Couleur pour répondre */
     }
     .action-buttons .btn-delete {
         background-color: #e74c3c; /* Couleur de suppression */
     }
     .reply-box {
-        background-color: #f8f8f8; /* Fond pour la réponse */
+        background-color: #444; /* Fond pour la réponse */
         padding: 5px;
-        border-left: 2px solid #2980b9; /* Bordure pour la réponse */
+        border-left: 2px solid #5c85d6; /* Bordure pour la réponse */
         margin-bottom: 10px;
         font-style: italic;
-        color: #555; /* Couleur de texte pour la réponse */
+        color: #ccc; /* Couleur de texte pour la réponse */
     }
     .reaction-container {
         margin-top: 5px;
         font-size: 0.9rem;
-        color: #2980b9; /* Couleur des réactions */
+        color: #ffd700; /* Couleur des réactions */
     }
 
     /* Ajout de media queries pour adaptation aux tablettes */
@@ -306,6 +296,7 @@
         }
     }
 </style>
+
 
 </head>
 <body>
