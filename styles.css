@@ -924,3 +924,155 @@ body {
   /* Floating buttons plus petits */
   .floating-buttons { bottom: 8px; right: 8px; gap: 6px; }
 }
+
+/* ===========================================================
+   PATCH BULLES MODERNES COMPACTES
+   Objectif : bulles moins hautes, adaptatives, sans toucher au JS
+   =========================================================== */
+.message {
+  max-width: min(76%, 520px);
+  width: fit-content;
+  padding: 6px 10px 5px;
+  margin: 2px 0;
+  border-radius: 17px;
+  line-height: 1.22;
+  font-size: 0.9rem;
+  gap: 1px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.22);
+}
+
+.message.user1 {
+  border-bottom-right-radius: 6px;
+}
+
+.message.user2 {
+  border-bottom-left-radius: 6px;
+}
+
+.username-tag {
+  font-size: 0.64rem;
+  line-height: 1;
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+}
+
+.msg-text {
+  line-height: 1.22;
+  margin: 0;
+}
+
+.timestamp {
+  font-size: 0.6rem;
+  line-height: 1;
+  margin-top: 2px;
+  opacity: 0.58;
+}
+
+.reaction-container {
+  margin-top: 1px;
+  gap: 2px;
+  min-height: 0;
+}
+
+.reaction-label {
+  display: none;
+}
+
+.reaction-emoji {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.action-buttons {
+  margin-top: 2px;
+  gap: 3px;
+  min-height: 0;
+  opacity: 0.68;
+}
+
+.emoji-btn {
+  font-size: 0.92rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.action-buttons .icon-button {
+  padding: 2px;
+}
+
+.action-buttons .icon-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.seen-check {
+  bottom: 3px;
+  right: 7px;
+  width: 12px;
+  height: 12px;
+}
+
+.citation {
+  padding: 4px 6px;
+  margin-bottom: 3px;
+  font-size: 0.72rem;
+  line-height: 1.18;
+}
+
+.messages-list {
+  gap: 1px;
+  padding-bottom: 5px;
+}
+
+@media (max-width: 480px) {
+  .message {
+    max-width: 82%;
+    padding: 5px 9px 4px;
+    margin: 2px 0;
+    border-radius: 16px;
+    font-size: 0.86rem;
+    line-height: 1.2;
+  }
+
+  .message.user1 {
+    border-bottom-right-radius: 5px;
+  }
+
+  .message.user2 {
+    border-bottom-left-radius: 5px;
+  }
+
+  .username-tag {
+    font-size: 0.6rem;
+    margin-bottom: 1px;
+  }
+
+  .timestamp {
+    font-size: 0.58rem;
+    margin-top: 1px;
+  }
+
+  .action-buttons {
+    margin-top: 1px;
+    opacity: 0.62;
+    transform: scale(0.9);
+    transform-origin: right center;
+  }
+
+  .message.user2 .action-buttons {
+    transform-origin: left center;
+  }
+
+  .action-buttons .icon-button {
+    padding: 1px;
+  }
+
+  .action-buttons .icon-button svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .emoji-btn {
+    font-size: 0.86rem;
+  }
+}
