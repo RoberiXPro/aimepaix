@@ -1,676 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>MPaix - Room sécurisé</title>
-    <!-- Inclure Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-<style>
-    body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: #2c2c2c; /* Fond gris foncé */
-        font-family: 'Arial', sans-serif;
-        color: #e0e0e0; /* Couleur de texte claire */
-        margin: 0;
-    }
-    #login-container, #chat-container {
-        width: 70%;
-        max-width: 800px;
-        background: rgba(40, 40, 40, 0.95); /* Fond légèrement transparent et sombre */
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* Ombre plus marquée */
-        display: none;
-    }
-    #login-container {
-        display: block;
-        animation: fadeIn 0.5s ease;
-    }
-    #reply-container {
-        display: none;
-        background-color: #444; /* Couleur de fond pour les réponses */
-        padding: 5px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-        color: #e0e0e0; /* Texte clair */
-    }
-    .reply-btn {
-        background-color: #5c85d6; /* Couleur bleue modérée */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-left: 10px;
-        font-size: 0.9rem;
-        padding: 5px;
-    }
-    .reply-btn:hover {
-        background-color: #4a6bbf; /* Couleur d'hover pour le bouton de réponse */
-    }
-    input, button {
-        padding: 10px;
-        border-radius: 5px;
-        border: none;
-        outline: none;
-        font-size: 1rem;
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Ombre modérée */
-    }
-    input {
-        width: 100%;
-        margin-bottom: 10px;
-        background-color: #444; /* Fond d'input sombre */
-        color: #e0e0e0; /* Texte clair */
-    }
-    button {
-        background-color: #555; /* Couleur de bouton sombre */
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    button:hover {
-        background-color: #4b4b4b; /* Couleur d'hover pour le bouton */
-    }
+  <meta charset="UTF-8">
+  <title>GHOOST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    #emoji-picker {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        max-width: 200px;
-        background-color: #444; /* Couleur d'arrière-plan sombre pour l'emoji picker */
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        position: absolute;
-        bottom: 60px;
-        left: 20px;
-    }
-    .emoji-picker-message {
-        display: none;
-        position: absolute;
-        bottom: 25px;
-        right: 5px;
-        background-color: #444; /* Couleur d'arrière-plan sombre */
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        z-index: 10;
-        max-width: 200px;
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    .emoji-btn {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        font-size: 1rem;
-        cursor: pointer;
-        background: transparent;
-        border: none;
-        color: #ffd700; /* Couleur des emojis dorés */
-        transition: transform 0.2s ease;
-    }
-    .emoji-btn:hover {
-        transform: scale(1.2);
-    }
-    .emoji {
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 5px;
-        transition: transform 0.1s ease;
-    }
-    .emoji:hover {
-        transform: scale(1.2);
-    }
-    #messages {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 10px;
-        background-color: #333; /* Couleur d'arrière-plan sombre pour les messages */
-        border-radius: 5px;
-        margin-bottom: 10px;
-        border: 1px solid #444; /* Bordure sombre pour séparer les messages */
-    }
-    .message {
-        padding: 10px;
-        margin-bottom: 8px;
-        border-radius: 5px;
-        word-wrap: break-word;
-        max-width: 70%;
-        color: #e0e0e0; /* Texte clair pour les messages */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        position: relative;
-    }
-    .message.user1 {
-        background: #5c85d6; /* Fond sombre pour l'utilisateur 1 */
-        align-self: flex-end;
-        border-radius: 10px 10px 0 10px;
-    }
-    .message.user2 {
-        background: #444; /* Fond sombre pour l'utilisateur 2 */
-        align-self: flex-start;
-        border-radius: 10px 10px 10px 0;
-    }
-    .msg-text {
-        margin-bottom: 5px;
-    }
-    .citation {
-        background-color: #555; /* Fond pour la citation */
-        padding: 5px;
-        margin-bottom: 5px;
-        border-radius: 5px;
-        font-style: italic;
-        color: #ccc; /* Couleur de texte pour les citations */
-    }
-    .reaction-container {
-        margin-top: 5px;
-        display: flex;
-        align-items: center;
-    }
-    .reaction-label {
-        font-size: 0.8rem;
-        color: #ccc; /* Couleur plus claire pour le label */
-        margin-right: 5px;
-        font-style: italic;
-    }
-    .reaction-emoji {
-        font-size: 1.2rem;
-        margin-right: 5px;
-        cursor: default;
-        display: inline-block;
-    }
-    .username.user1 {
-        display: inline-block;
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #fff;
-        background: #5c85d6; /* Couleur de fond pour le nom d'utilisateur 1 */
-        padding: 5px 8px;
-        border-radius: 6px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .username.user2 {
-        display: inline-block;
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #fff;
-        background: #444; /* Couleur de fond pour le nom d'utilisateur 2 */
-        padding: 5px 8px;
-        border-radius: 6px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .username.user1:hover,
-    .username.user2:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
-    }
-    .flou {
-        filter: blur(4px);
-        transition: filter 0.3s ease;
-    }
-    .message:hover .flou {
-        filter: none;
-    }
-    h1 {
-        font-size: 3em;
-        color: #ffd700; /* Couleur de titre dorée */
-        margin-bottom: 20px;
-        padding: 20px 40px;
-        border-radius: 15px;
-        text-align: center;
-        background: #333; /* Couleur de fond sombre pour le titre */
-        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffcc00;
-        border: 2px solid transparent;
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-        transition: transform 0.3s ease;
-    }
-    h1:hover {
-        transform: scale(1.05);
-    }
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-    }
-    .action-buttons button {
-        background-color: #555; /* Couleur d'action sombre */
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        padding: 5px;
-    }
-    .action-buttons button:hover {
-        background-color: #4b4b4b; /* Couleur d'hover pour les actions */
-    }
-    .action-buttons .btn-reply {
-        background-color: #5c85d6; /* Couleur pour répondre */
-    }
-    .action-buttons .btn-delete {
-        background-color: #e74c3c; /* Couleur de suppression */
-    }
-    .reply-box {
-        background-color: #444; /* Fond pour la réponse */
-        padding: 5px;
-        border-left: 2px solid #5c85d6; /* Bordure pour la réponse */
-        margin-bottom: 10px;
-        font-style: italic;
-        color: #ccc; /* Couleur de texte pour la réponse */
-    }
-    .reaction-container {
-        margin-top: 5px;
-        font-size: 0.9rem;
-        color: #ffd700; /* Couleur des réactions */
-    }
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
 
-    /* Ajout de media queries pour adaptation aux tablettes */
-    @media (max-width: 600px) {
-        body {
-            padding: 10px;
-        }
-        #login-container, #chat-container {
-            width: 100%;
-            padding: 15px;
-        }
-        input, button {
-            font-size: 0.9rem;
-            padding: 8px;
-        }
-        #messages {
-            max-height: 50vh;
-        }
-        h1 {
-            font-size: 2em;
-        }
-    }
-    @media (min-width: 600px) and (max-width: 900px) {
-        #login-container, #chat-container {
-            width: 80%;
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-    }
-</style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
-
+  <!-- App -->
+  <script defer src="app.js"></script>
 </head>
 <body>
-    <h1>MP</h1>
+  <!-- Notification toast -->
+  <div id="notification" class="toast" style="display:none;">
+    Nouveau message reçu 💬
+  </div>
 
-    <!-- Section de connexion -->
-    <div id="login-container">
-        <input type="text" id="username" placeholder="Votre pseudo" required><br>
-        <input type="text" id="room-name-input" placeholder="Lieu du rendez-vous" required><br>
-        <input type="password" id="password-input" placeholder="Mot de passe" required><br>
-        <button onclick="joinRoom()">Rejoindre</button>
+  <!-- Écran login -->
+  <div id="login-container" class="screen screen-login">
+    <h1 class="app-title">🗨️ GHOOST 👻</h1>
+    <div class="login-card">
+      <h2 class="login-title">Connexion</h2>
+
+      <div class="input-group">
+        <label for="username">🕤 Votre pseudo</label>
+        <input type="text" id="username" placeholder="Entrer votre pseudo ICI" required />
+      </div>
+
+      <div class="input-group">
+        <label for="room-name-input">🏠 Lieu de RDV</label>
+        <input type="text" id="room-name-input" placeholder="*******" required />
+      </div>
+
+      <div class="input-group">
+        <label for="password-input">🔐 Mot de passe</label>
+        <input type="password" id="password-input" placeholder="*******" required />
+      </div>
+
+      <button class="login-button">🚪 Se connecter</button>
     </div>
+  </div>
 
-    <!-- Section de chat -->
-    <div id="chat-container">
-        <div id="room-name-display" style="font-size: 1.5em; font-weight: bold; color: #ffd700; margin-bottom: 10px;"></div>
+  <!-- Écran chat -->
+  <div id="chat-screen" class="screen screen-chat hidden">
+    <div class="chat-wrapper">
+      <div id="chat-container" class="chat-container hidden">
+        <!-- Header -->
+        <header class="chat-header">
+          <div class="room-info">
+            <div id="room-name-display" class="room-title"></div>
+            <div class="status-pill">Connecté</div>
+          </div>
 
-        <!-- Section pour répondre à un message -->
-        <div id="reply-container">
-            <span id="reply-message"></span>
-            <button onclick="cancelReply()" style="float: right; background-color: #e74c3c; color: white; border: none; border-radius: 5px; padding: 5px;">Annuler</button>
+          <div class="header-actions">
+            <button id="theme-toggle" class="theme-toggle" title="Thème clair/sombre">🌙</button>
+
+            <div id="theme-selector" class="theme-selector">
+              <label for="theme-select" class="theme-label">🎨 Thème :</label>
+              <select id="theme-select" class="theme-select">
+                <option value="default">Sombre</option>
+                <option value="ocean">Océan</option>
+                <option value="forest">Forêt</option>
+                <option value="rosewood">Rosewood</option>
+                <option value="noir">Nuit discrète</option>
+                <option value="midnight">Minuit</option>
+                <option value="sepia">Sépia</option>
+                <option value="galaxy">Galaxie</option>
+              </select>
+            </div>
+          </div>
+        </header>
+
+        <!-- Main layout -->
+        <div class="chat-main">
+          <!-- Utilisateurs en ligne -->
+          <aside class="sidebar users-panel">
+            <h2>En ligne</h2>
+            <ul id="online-users"></ul>
+          </aside>
+
+          <!-- Messages + input -->
+          <section class="messages-panel">
+            <div id="reply-container" class="reply-container">
+              <span id="reply-message"></span>
+              <button onclick="cancelReply()" class="btn-cancel-reply">Annuler</button>
+            </div>
+
+            <div id="messages" class="messages-list"></div>
+
+            <div id="audio-preview" class="audio-preview">
+              <audio id="audio-player" controls></audio>
+              <div class="audio-actions">
+                <button onclick="uploadAudio()">✅ Envoyer le vocal</button>
+                <button onclick="cancelAudio()" class="cancel-audio">❌ Annuler</button>
+              </div>
+            </div>
+
+            <!-- Zone de saisie -->
+            <div id="input-section" class="input-section">
+              <div class="compose-row">
+                <button class="icon-button" onclick="toggleEmojiPicker()" title="Emoji">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 22C6.48 22 2 17.52 2 12s4.48-10 10-10 10 4.48 10 10-4.48 10-10 10zm0-4a6 6 0 006-6H6a6 6 0 006 6z"/>
+                  </svg>
+                </button>
+
+                <input type="text" id="message-input" placeholder="Écrivez un message">
+
+                <button class="icon-button send-btn" onclick="sendMessage()" title="Envoyer">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="tools-row">
+                <button class="icon-button" onclick="toggleRecording()" id="record-btn" title="Audio">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 14a3 3 0 003-3V5a3 3 0 00-6 0v6a3 3 0 003 3zm6-3a6 6 0 01-12 0H4a8 8 0 0016 0h-2zm-6 8c2.21 0 4-1.79 4-4h-2a2 2 0 01-4 0H8c0 2.21 1.79 4 4 4z"/>
+                  </svg>
+                </button>
+
+                <input type="file" id="image-input" accept="image/*" multiple style="display:none;">
+                <button class="icon-button" onclick="document.getElementById('image-input').click()" title="Image">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M21 19V5H3v14h18zm-2-2H5V7h14v10z"/>
+                  </svg>
+                </button>
+
+                <button class="icon-button" onclick="quitRoom()" title="Quitter">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
+      </div>
 
-        <div id="messages"></div>
-        <div id="input-section">
-            <button onclick="toggleEmojiPicker()">😊</button>
-            <input type="text" id="message-input" placeholder="Écrivez un message">
-            <button onclick="sendMessage()">Envoyer</button>
-            <button onclick="toggleAllMessages()">Afficher tous</button>
-            <button onclick="quitRoom()">Quitter</button>
-        </div>
-        <div id="emoji-picker" style="display: none;">
-    <!-- Emoji Picker Content -->
-</div>
+      <!-- Stealth screen -->
+      <div id="stealth-screen" class="stealth-screen">
+        <p class="stealth-question">Résous : 9 x 2548 + 236</p>
+        <input id="stealth-code" class="stealth-input" placeholder="Tape ici">
+        <button onclick="quitStealthSafely()" class="stealth-quit">Quitter discrètement</button>
+      </div>
     </div>
+  </div>
 
-<script>
-    const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3');
-    var firebaseConfig = {
-        apiKey: "AIzaSyAN7IrOQfHYJAeO49I1EZxDfupv62Ew9XI",
-        authDomain: "madiko-rs.firebaseapp.com",
-        databaseURL: "https://madiko-rs-default-rtdb.firebaseio.com",
-        projectId: "madiko-rs",
-        storageBucket: "madiko-rs.appspot.com",
-        messagingSenderId: "746083664475",
-        appId: "1:746083664475:web:fe2d5628d20e385d06b57e",
-        measurementId: "G-EBWFWCMWFT"
-    };
-    firebase.initializeApp(firebaseConfig);
+  <!-- Emoji global -->
+  <div id="emoji-picker" class="emoji-picker"></div>
 
-    var db;
-    var username;
-    var roomName;
-    var replyMessageId = null;
-    var replyMessageText = "";
-    var allMessagesVisible = false;
+  <!-- Popup image -->
+  <div id="image-popup" class="image-popup">
+    <div id="popup-inner" class="popup-inner">
+      <img id="popup-img" class="popup-img" />
+      <button id="close-popup-btn" class="close-popup-btn">✖</button>
+    </div>
+  </div>
 
-    function joinRoom() {
-        username = document.getElementById("username").value;
-        roomName = document.getElementById("room-name-input").value;
-        var password = document.getElementById("password-input").value;
+  <!-- Boutons flottants -->
+  <div class="floating-buttons">
+    <button class="icon-button danger-button" onclick="panicWipe()" title="Panic">🧨</button>
+    <button class="icon-button stealth-button" onclick="activateStealth()" title="Camouflage">🕶️</button>
+  </div>
 
-        // Référence au room dans Firebase
-        db = firebase.database().ref("rooms/" + roomName);
-
-        // Vérifie l'existence et le mot de passe du room
-        db.once('value').then(function(snapshot) {
-            if (snapshot.exists()) {
-                var dbPassword = snapshot.child("password").val();
-                if (dbPassword === password) {
-                    alert("Connexion réussie !");
-                    document.getElementById("room-name-display").textContent = "Lieu à : " + roomName;
-                    switchToChat();
-                } else {
-                    alert("Mot de passe incorrect !");
-                }
-            } else {
-                // Créer le room si inexistant
-                db.set({
-                    password: password,
-                    messages: {}
-                }).then(() => {
-                    alert("Room créé avec succès !");
-                    document.getElementById("room-name-display").textContent = "Lieu à : " + roomName;
-                    switchToChat();
-                });
-            }
-        });
-    }
-
-    function switchToChat() {
-        document.getElementById("login-container").style.display = "none";
-        document.getElementById("chat-container").style.display = "block";
-        loadMessages();
-    }
-
-    function sendMessage() {
-        var messageInput = document.getElementById("message-input");
-        var message = messageInput.value;
-
-        if (message.trim() === "") {
-            return;
-        }
-
-        var timestamp = new Date().toLocaleTimeString();
-
-        var msgData = { 
-            "user": username, 
-            "message": message, 
-            "timestamp": timestamp,
-            "reactions": {}
-        };
-        
-        if (replyMessageId) {
-            msgData.replyTo = replyMessageText;
-            cancelReply();
-        }
-
-        var msgRef = db.child("messages").push();
-        msgRef.set(msgData);
-
-        messageInput.value = '';
-    }
-
-    function loadMessages() {
-        db.child('messages').on('child_added', function(snapshot) {
-            displayMessage(snapshot.key, snapshot.val());
-        });
-
-        db.child('messages').on('child_removed', function(snapshot) {
-            const removedMessage = document.getElementById(snapshot.key);
-            if (removedMessage) {
-                removedMessage.remove();
-            }
-        });
-    }
-
-    function addReactionEmoji(messageId, emoji) {
-        db.child("messages/" + messageId + "/reactions/" + username).set(emoji);
-    }
-
-    // Liste d'émojis de base
-    const emojis = ["😀", "😂", "😍", "😎", "😊", "😢", "😡", "👍", "👎", "🎉", "❤️", "🔥"];
-
-    function toggleEmojiPicker() {
-        const picker = document.getElementById("emoji-picker");
-        picker.style.display = picker.style.display === "none" ? "flex" : "none";
-    }
-
-    function loadEmojis() {
-        const picker = document.getElementById("emoji-picker");
-        emojis.forEach(emoji => {
-            const emojiSpan = document.createElement("span");
-            emojiSpan.textContent = emoji;
-            emojiSpan.className = "emoji";
-            emojiSpan.onclick = function() {
-                insertEmoji(emoji);
-            };
-            picker.appendChild(emojiSpan);
-        });
-    }
-
-    document.addEventListener("keydown", function(event) {
-        if (event.key === "Escape") {
-            document.querySelectorAll(".emoji-picker-message").forEach(function(picker) {
-                picker.style.display = "none";
-            });
-        }
-    });
-
-    document.addEventListener("click", function(event) {
-        if (!event.target.closest(".emoji-picker-message") && !event.target.classList.contains("emoji-btn")) {
-            document.querySelectorAll(".emoji-picker-message").forEach(function(picker) {
-                picker.style.display = "none";
-            });
-        }
-    });
-
-    function insertEmoji(emoji) {
-        const messageInput = document.getElementById("message-input");
-        messageInput.value += emoji;
-        document.getElementById("emoji-picker").style.display = "none";
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        loadEmojis();
-
-        document.getElementById("message-input").addEventListener("keydown", function(event) {
-            if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-    });
-
-    function quitRoom() {
-        document.getElementById("chat-container").style.display = "none";
-        document.getElementById("login-container").style.display = "block";
-    }
-
-    function displayMessage(key, data) {
-        var msgDiv = document.createElement("div");
-        msgDiv.id = key;
-        msgDiv.className = (data.user === username ? "message user1" : "message user2");
-
-        var usernameDiv = document.createElement("div");
-        usernameDiv.className = "username " + (data.user === username ? "user1" : "user2");
-        usernameDiv.textContent = data.user;
-
-        var textSpan = document.createElement("span");
-        textSpan.className = "msg-text flou";
-        textSpan.textContent = data.message;
-
-        var timeDiv = document.createElement("div");
-        timeDiv.className = "timestamp";
-        timeDiv.style.fontSize = "0.8rem";
-        timeDiv.style.color = "#ccc";
-        timeDiv.style.position = "absolute";
-        timeDiv.style.top = "5px";
-        timeDiv.style.right = "10px";
-        timeDiv.textContent = data.timestamp;
-
-        msgDiv.appendChild(usernameDiv);
-        msgDiv.appendChild(timeDiv);
-        msgDiv.appendChild(textSpan);
-
-        var reactionContainer = document.createElement("div");
-        reactionContainer.className = "reaction-container";
-        msgDiv.appendChild(reactionContainer);
-
-        db.child("messages/" + key + "/reactions").on("value", function(snapshot) {
-            reactionContainer.innerHTML = "";
-            if (snapshot.exists()) {
-                var reactionLabel = document.createElement("span");
-                reactionLabel.className = "reaction-label";
-                reactionLabel.textContent = "Réaction : ";
-                reactionContainer.appendChild(reactionLabel);
-                snapshot.forEach(function(childSnapshot) {
-                    const reactionEmoji = document.createElement("span");
-                    reactionEmoji.className = "reaction-emoji";
-                    reactionEmoji.textContent = childSnapshot.val();
-                    reactionContainer.appendChild(reactionEmoji);
-                });
-            }
-        });
-
-        if (data.replyTo) {
-            var replyDiv = document.createElement("div");
-            replyDiv.className = "citation flou";
-            replyDiv.style.backgroundColor = "#444";
-            replyDiv.style.padding = "5px";
-            replyDiv.style.marginBottom = "5px";
-            replyDiv.style.borderRadius = "5px";
-            replyDiv.textContent = "Réponse à : " + data.replyTo;
-            msgDiv.appendChild(replyDiv);
-
-            setTimeout(function() {
-                replyDiv.classList.add("flou");
-            }, 15000);
-        }
-
-        var emojiBtn = document.createElement("button");
-        emojiBtn.className = "emoji-btn";
-        emojiBtn.textContent = "😀";
-        emojiBtn.onclick = function () {
-            toggleEmojiPickerMessage(key);
-        };
-        msgDiv.appendChild(emojiBtn);
-
-        var emojiPickerMessage = document.createElement("div");
-        emojiPickerMessage.className = "emoji-picker-message";
-        emojiPickerMessage.id = `emoji-picker-${key}`;
-
-        emojis.forEach((emoji) => {
-            const emojiSpan = document.createElement("span");
-            emojiSpan.textContent = emoji;
-            emojiSpan.className = "emoji";
-            emojiSpan.onclick = function () {
-                addReactionEmoji(key, emoji);
-                emojiPickerMessage.style.display = "none";
-            };
-            emojiPickerMessage.appendChild(emojiSpan);
-        });
-
-        msgDiv.appendChild(emojiPickerMessage);
-
-        var actionButtons = document.createElement("div");
-        actionButtons.className = "action-buttons";
-
-        var replyBtn = document.createElement("button");
-        replyBtn.textContent = "Répondre";
-        replyBtn.className = "reply-btn";
-        replyBtn.onclick = function() {
-            prepareReply(key, data.message);
-        };
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Supprimer";
-        deleteBtn.className = "btn-delete";
-        deleteBtn.onclick = function() {
-            db.child("messages/" + key).remove();
-        };
-
-        actionButtons.appendChild(replyBtn);
-        actionButtons.appendChild(deleteBtn);
-        msgDiv.appendChild(actionButtons);
-
-        document.getElementById("messages").appendChild(msgDiv);
-
-        setTimeout(function() {
-            textSpan.classList.add("flou");
-        }, 15000);
-
-        scrollToBottom();
-
-        msgDiv.onmouseover = function() {
-            textSpan.classList.remove("flou");
-        };
-        msgDiv.onmouseleave = function() {
-            textSpan.classList.add("flou");
-        };
-
-        if (data.user !== username && document.visibilityState === 'hidden') {
-            document.title = '💬 Nouveau message!';
-            notificationSound.play().catch(error => console.log("Erreur de lecture de la notification sonore :", error));
-        }
-    }
-
-    document.addEventListener('visibilitychange', function () {
-        if (document.visibilityState === 'visible') {
-            document.title = 'AimePaix - Room sécurisé';
-        }
-    });
-
-    function toggleEmojiPickerMessage(key) {
-        const picker = document.getElementById(`emoji-picker-${key}`);
-        picker.style.display = picker.style.display === "flex" ? "none" : "flex";
-    }
-
-    function prepareReply(key, message) {
-        replyMessageId = key;
-        replyMessageText = message;
-        document.getElementById("reply-message").textContent = "Réponse à : " + message;
-        document.getElementById("reply-container").style.display = "block";
-    }
-
-    function cancelReply() {
-        replyMessageId = null;
-        replyMessageText = "";
-        document.getElementById("reply-message").textContent = "";
-        document.getElementById("reply-container").style.display = "none";
-    }
-
-    function toggleAllMessages() {
-        var allMessages = document.querySelectorAll(".msg-text");
-        allMessages.forEach(function(message) {
-            if (allMessagesVisible) {
-                message.classList.add("flou");
-            } else {
-                message.classList.remove("flou");
-            }
-        });
-        allMessagesVisible = !allMessagesVisible;
-        document.querySelector("button[onclick='toggleAllMessages()']").textContent = allMessagesVisible ? "Masquer tous" : "Afficher tous";
-    }
-
-    function scrollToBottom() {
-        var messagesDiv = document.getElementById("messages");
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-</script>
-
-    <footer style="margin-top: 20px; font-size: 0.8rem; color: #999; text-align: center;">
-        BigLittleBob 2024
-    </footer>
+  <footer class="app-footer">
+    &copy; RoberiX 2025
+  </footer>
 </body>
 </html>
