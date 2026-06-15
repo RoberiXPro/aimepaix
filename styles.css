@@ -1146,3 +1146,159 @@ body {
     height: 12px !important;
   }
 }
+
+
+/* ===========================================================
+   PATCH GHOOST — actions plus accessibles + bulles ajustées
+   =========================================================== */
+
+#message-input {
+  resize: none !important;
+  min-height: 38px !important;
+  max-height: 120px !important;
+  line-height: 1.32 !important;
+  overflow-y: auto !important;
+  font-family: inherit !important;
+}
+
+.msg-text {
+  white-space: pre-wrap !important;
+}
+
+.message {
+  max-width: min(80%, 540px) !important;
+  min-width: 60px !important;
+  padding: 7px 46px 7px 12px !important;
+  border-radius: 17px !important;
+  font-size: 0.89rem !important;
+  line-height: 1.24 !important;
+}
+
+.username-tag {
+  font-size: 0.61rem !important;
+  margin-bottom: 3px !important;
+}
+
+.timestamp {
+  right: 10px !important;
+  bottom: 7px !important;
+  font-size: 0.58rem !important;
+}
+
+.edited-tag {
+  position: absolute;
+  right: 10px;
+  bottom: 18px;
+  font-size: 0.5rem;
+  line-height: 1;
+  opacity: 0.52;
+  pointer-events: none;
+}
+
+/* Zone invisible entre la bulle et les boutons : le curseur ne perd plus le hover */
+.message::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  width: 64px;
+  z-index: 15;
+}
+
+.message.user1::before {
+  right: 100%;
+}
+
+.message.user2::before {
+  left: 100%;
+}
+
+.action-buttons {
+  padding: 4px 5px !important;
+  gap: 3px !important;
+  background: rgba(18,18,26,0.9) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  transition: opacity 0.14s ease, transform 0.14s ease !important;
+}
+
+.message.user1 .action-buttons {
+  right: calc(100% + 8px) !important;
+}
+
+.message.user2 .action-buttons {
+  left: calc(100% + 8px) !important;
+}
+
+.action-buttons:hover,
+.message:hover .action-buttons,
+.message:focus-within .action-buttons,
+.message.actions-open .action-buttons {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.action-buttons .emoji-btn,
+.action-buttons .icon-button {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+}
+
+.action-buttons .icon-button svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+@media (max-width: 800px) {
+  .message {
+    max-width: 82% !important;
+  }
+
+  .action-buttons {
+    opacity: 0.72 !important;
+    pointer-events: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .message {
+    max-width: 80% !important;
+    min-width: 56px !important;
+    padding: 6px 42px 6px 11px !important;
+    border-radius: 16px !important;
+    font-size: 0.86rem !important;
+    line-height: 1.22 !important;
+  }
+
+  .timestamp {
+    right: 8px !important;
+    bottom: 6px !important;
+    font-size: 0.54rem !important;
+  }
+
+  .edited-tag {
+    right: 8px;
+    bottom: 16px;
+    font-size: 0.48rem;
+  }
+
+  .message.user1 .action-buttons {
+    right: calc(100% + 5px) !important;
+  }
+
+  .message.user2 .action-buttons {
+    left: calc(100% + 5px) !important;
+  }
+
+  .action-buttons .emoji-btn,
+  .action-buttons .icon-button {
+    width: 21px !important;
+    height: 21px !important;
+    min-width: 21px !important;
+  }
+
+  .action-buttons .icon-button svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+}
