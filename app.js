@@ -22,6 +22,7 @@ let username = null;
 let roomName = null;
 let replyMessageId = null;
 let replyMessageText = "";
+let editingMessageId = null;
 let messageListener = null;
 let childRemovedListenerSet = false;
 let passwordValue = "";
@@ -117,8 +118,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Envoi message avec Enter
+  // Envoi message avec Enter ; Shift + Enter garde le saut de ligne
   if (messageInput) {
+    autoResizeMessageInput(messageInput);
+
+    messageInput.addEventListener("input", () => {
+      autoResizeMessageInput(messageInput);
+    });
+
     messageInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -379,6 +386,21 @@ function sendMessage() {
 
   const timestamp = Date.now();
 
+  if (editingMessageId) {
+    db.child("messages").child(editingMessageId).update({
+      message: text,
+      timestamp,
+      edited: true
+    });
+    cancelEdit();
+    document.getElementById("reply-message").textContent = "";
+    document.getElementById("reply-container").style.display = "none";
+    messageInput.value = "";
+    autoResizeMessageInput(messageInput);
+    messageInput.focus();
+    return;
+  }
+
   const msgData = {
     user: username,
     message: text,
@@ -395,6 +417,8 @@ function sendMessage() {
   msgRef.set(msgData);
 
   messageInput.value = "";
+  autoResizeMessageInput(messageInput);
+  messageInput.focus();
 }
 
 function loadMessages() {
@@ -420,18 +444,78 @@ function loadMessages() {
     const data = snapshot.val();
     const msgDiv = document.getElementById(key);
 
-    if (msgDiv && data.seen && data.user === username) {
-      if (!msgDiv.querySelector(".seen-check")) {
-        const seenCheck = document.createElement("span");
-        seenCheck.className = "seen-check";
-        seenCheck.innerHTML = `
-          <svg viewBox="0 0 24 24">
-            <path d="M1 13l4 4L23 3M10 14l4 4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>`;
-        msgDiv.appendChild(seenCheck);
-      }
+    if (!msgDiv) return;
+
+    refreshMessageElement(msgDiv, data);
+
+    if (data.seen && data.user === username) {
+      addSeenCheck(msgDiv);
     }
   });
+}
+
+function escapeHTML(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function linkifyMessage(value) {
+  const escaped = escapeHTML(value || "");
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  return escaped.replace(
+    urlRegex,
+    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#ffd700">${url}</a>`
+  );
+}
+
+function autoResizeMessageInput(input) {
+  if (!input) return;
+  input.style.height = "auto";
+  input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
+}
+
+function addSeenCheck(msgDiv) {
+  if (!msgDiv || msgDiv.querySelector(".seen-check")) return;
+  const seenCheck = document.createElement("span");
+  seenCheck.className = "seen-check";
+  seenCheck.innerHTML = `
+    <svg viewBox="0 0 24 24">
+      <path d="M1 13l4 4L23 3M10 14l4 4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+  msgDiv.appendChild(seenCheck);
+}
+
+function refreshMessageElement(msgDiv, data) {
+  if (!msgDiv || !data) return;
+
+  msgDiv.dataset.message = data.message || "";
+
+  const textNode = msgDiv.querySelector(".msg-text");
+  if (textNode && typeof data.message === "string") {
+    textNode.innerHTML = linkifyMessage(data.message);
+  }
+
+  const time = msgDiv.querySelector(".timestamp");
+  if (time) {
+    time.textContent = formatTime(data.timestamp);
+  }
+  msgDiv.dataset.timestamp = data.timestamp;
+
+  let editedTag = msgDiv.querySelector(".edited-tag");
+  if (data.edited) {
+    if (!editedTag) {
+      editedTag = document.createElement("span");
+      editedTag.className = "edited-tag";
+      editedTag.textContent = "modifié";
+      msgDiv.appendChild(editedTag);
+    }
+  } else if (editedTag) {
+    editedTag.remove();
+  }
 }
 
 function displayMessage(key, data) {
@@ -441,6 +525,7 @@ function displayMessage(key, data) {
   const msgDiv = document.createElement("div");
   msgDiv.id = key;
   msgDiv.className = "message " + (data.user === username ? "user1" : "user2");
+  msgDiv.dataset.message = data.message || "";
 
   // Réponse
   if (data.replyTo) {
@@ -476,12 +561,7 @@ function displayMessage(key, data) {
       });
     }
 
-    const urlRegex = /(https?:\/\/[^\s]+)/gi;
-    const msg = (data.message || "").replace(
-      urlRegex,
-      (url) => `<a href="${url}" target="_blank" style="color:#ffd700">${url}</a>`
-    );
-    content.innerHTML = msg;
+    content.innerHTML = linkifyMessage(data.message || "");
   }
 
   const userTag = document.createElement("div");
@@ -496,6 +576,13 @@ function displayMessage(key, data) {
   time.textContent = formatTime(data.timestamp);
   msgDiv.dataset.timestamp = data.timestamp;
   msgDiv.appendChild(time);
+
+  if (data.edited) {
+    const editedTag = document.createElement("span");
+    editedTag.className = "edited-tag";
+    editedTag.textContent = "modifié";
+    msgDiv.appendChild(editedTag);
+  }
 
   // Réactions
   const reactionContainer = document.createElement("div");
@@ -552,10 +639,20 @@ function displayMessage(key, data) {
     <svg viewBox="0 0 24 24">
       <path d="M10 9V5l-7 7 7 7v-4.1c4.28 0 6.88 1.45 8.95 4.1-.5-5.04-3.95-10-8.95-10z"/>
     </svg>`;
-  replyBtn.onclick = () => prepareReply(key, data.message);
+  replyBtn.onclick = () => prepareReply(key, msgDiv.dataset.message || data.message || "");
   btnGroup.appendChild(replyBtn);
 
   if (data.user === username) {
+    const editBtn = document.createElement("button");
+    editBtn.className = "icon-button edit-button";
+    editBtn.title = "Modifier";
+    editBtn.innerHTML = `
+      <svg viewBox="0 0 24 24">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1 1 0 000-1.41l-2.51-2.51a1 1 0 00-1.41 0l-1.96 1.96 3.75 3.75 2.13-1.79z"/>
+      </svg>`;
+    editBtn.onclick = () => prepareEdit(key, msgDiv.dataset.message || data.message || "");
+    btnGroup.appendChild(editBtn);
+
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "icon-button";
     deleteBtn.innerHTML = `
@@ -600,15 +697,51 @@ function deleteMessage(msgDiv, key) {
 
 // Réponse
 function prepareReply(key, message) {
+  cancelEdit(false);
   replyMessageId = key;
   replyMessageText = message;
   document.getElementById("reply-message").textContent = "Réponse du : " + message;
   document.getElementById("reply-container").style.display = "block";
 }
 
+function prepareEdit(key, message) {
+  replyMessageId = null;
+  replyMessageText = "";
+  editingMessageId = key;
+
+  const messageInput = document.getElementById("message-input");
+  const replyMessage = document.getElementById("reply-message");
+  const replyContainer = document.getElementById("reply-container");
+
+  if (messageInput) {
+    messageInput.value = message || "";
+    autoResizeMessageInput(messageInput);
+    messageInput.focus();
+    messageInput.setSelectionRange(messageInput.value.length, messageInput.value.length);
+  }
+
+  if (replyMessage && replyContainer) {
+    replyMessage.textContent = "Modification du message en cours";
+    replyContainer.style.display = "block";
+  }
+}
+
+function cancelEdit(clearInput = false) {
+  editingMessageId = null;
+
+  if (clearInput) {
+    const messageInput = document.getElementById("message-input");
+    if (messageInput) {
+      messageInput.value = "";
+      autoResizeMessageInput(messageInput);
+    }
+  }
+}
+
 function cancelReply() {
   replyMessageId = null;
   replyMessageText = "";
+  cancelEdit(false);
   document.getElementById("reply-message").textContent = "";
   document.getElementById("reply-container").style.display = "none";
 }
@@ -953,14 +1086,6 @@ function updateSeenStatus(msgDiv, data, key) {
       }
     });
   } else if (data.user === username && data.seen) {
-    if (!msgDiv.querySelector(".seen-check")) {
-      const seenCheck = document.createElement("span");
-      seenCheck.className = "seen-check";
-      seenCheck.innerHTML = `
-        <svg viewBox="0 0 24 24">
-          <path d="M1 13l4 4L23 3M10 14l4 4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>`;
-      msgDiv.appendChild(seenCheck);
-    }
+    addSeenCheck(msgDiv);
   }
 }
